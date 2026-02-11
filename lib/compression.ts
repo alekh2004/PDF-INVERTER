@@ -3,7 +3,7 @@ import { getPageImage } from "./converter-logic"; // Reuse existing renderer
 
 export async function compressPDF(file: File, quality: number = 0.5): Promise<Uint8Array> {
     const pdfjsLib = await import("pdfjs-dist");
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
 
     const arrayBuffer = await file.arrayBuffer();
     const pdfJsDoc = await pdfjsLib.getDocument(arrayBuffer.slice(0)).promise;

@@ -17,14 +17,17 @@ export const AdUnit = ({
     dataAdFormat = "auto",
     dataFullWidthResponsive = true
 }: AdUnitProps) => {
-    const adRef = useRef<HTMLModElement>(null);
+    const initialized = useRef(false);
 
     useEffect(() => {
+        if (initialized.current) return;
+
         try {
             // @ts-ignore
             if (window.adsbygoogle) {
                 // @ts-ignore
                 (window.adsbygoogle = window.adsbygoogle || []).push({});
+                initialized.current = true;
             }
         } catch (e) {
             console.error("AdSense Error", e);

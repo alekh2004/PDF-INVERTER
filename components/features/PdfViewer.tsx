@@ -6,8 +6,10 @@ import { Document, Page, pdfjs } from "react-pdf";
 import { GlassButton } from "@/components/ui/GlassButton";
 import { cn } from "@/lib/utils";
 
-// Configure worker - using specific version (v4.8.69) to match react-pdf v9
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
+// Configure worker - using matched version (v4.4.168) for production reliability
+if (typeof window !== "undefined") {
+    pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
+}
 
 interface PdfViewerProps {
     file: File | string | null;

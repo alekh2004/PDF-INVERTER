@@ -4,7 +4,7 @@ import { cleanPageImage } from "./image-processing";
 
 export async function cleanPDF(file: File, vectorize: boolean = false): Promise<Uint8Array> {
     const pdfjsLib = await import("pdfjs-dist");
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
 
     const { PDFDocument } = await import("pdf-lib");
 
@@ -40,7 +40,7 @@ export async function vectorizePDF(file: File): Promise<Uint8Array> {
 
 export async function autoDeskewPDF(file: File): Promise<Uint8Array> {
     const pdfjsLib = await import("pdfjs-dist");
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
 
     // ... rest of autoDeskewPDF implementation
     const { PDFDocument, degrees } = await import("pdf-lib");
@@ -83,7 +83,7 @@ export interface OptimizationOptions extends ImageProcessingOptions {
 
 export async function processPDF(file: File, options: OptimizationOptions): Promise<Uint8Array> {
     const pdfjsLib = await import("pdfjs-dist");
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
 
     const { PDFDocument, degrees } = await import("pdf-lib");
 

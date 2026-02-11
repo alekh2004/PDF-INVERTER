@@ -5,7 +5,9 @@ import { useState } from "react";
 import { LazyPage } from "@/components/ui/LazyPage";
 
 // Configure worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
+if (typeof window !== "undefined") {
+    pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
+}
 
 interface PdfThumbnailGridProps {
     file: File | null;

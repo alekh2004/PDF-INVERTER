@@ -2,7 +2,7 @@ import { PDFDocument } from "pdf-lib";
 
 export async function invertPDF(file: File, options: { grayscale?: boolean } = {}): Promise<Uint8Array> {
     const pdfjsLib = await import("pdfjs-dist");
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
 
     const arrayBuffer = await file.arrayBuffer();
     const loadingTask = pdfjsLib.getDocument(arrayBuffer);
