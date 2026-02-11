@@ -37,7 +37,7 @@ export const AdUnit = ({
             <ins
                 className="adsbygoogle"
                 style={{ display: "block", minHeight: "100px" }}
-                data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" // REPLACE THIS
+                data-ad-client="ca-pub-8824779015703781" // My Real ID
                 data-ad-slot={dataAdSlot}
                 data-ad-format={dataAdFormat}
                 data-full-width-responsive={dataFullWidthResponsive ? "true" : "false"}
