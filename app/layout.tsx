@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "GlassPDF - Advanced PDF Tools",
   description: "Merge, Split, Invert, and Edit PDFs with a beautiful Glassmorphic interface.",
   manifest: "/manifest.json",
+  other: {
+    "google-adsense-account": "ca-pub-8824779015703781",
+  },
 };
 
 export default function RootLayout({
