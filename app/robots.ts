@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: '/private/',
         },
-        sitemap: 'https://pdf-inverter.vercel.app/sitemap.xml',
+        sitemap: 'https://pdf-inverter-five.vercel.app/sitemap.xml',
     }
 }

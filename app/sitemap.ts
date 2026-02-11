@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://pdf-inverter.vercel.app' // User should update this if they get a custom domain
+    const baseUrl = 'https://pdf-inverter-five.vercel.app' // Updated to actual production URL
 
     const tools = [
         '',
