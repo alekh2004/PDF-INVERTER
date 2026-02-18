@@ -4,8 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { FileProvider } from "@/components/features/FileContext";
-import { GlobalModal } from "@/components/features/GlobalModal";
-import { AiChatWidget } from "@/components/features/AiChatWidget";
+import { ClientProviders } from "@/components/layout/ClientProviders";
 import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -41,15 +40,15 @@ export default function RootLayout({
         </div>
 
         <FileProvider>
-          <Navbar />
+          <ClientProviders>
+            <Navbar />
 
-          <main className="flex-grow pt-24 px-4 max-w-7xl mx-auto w-full">
-            {children}
-          </main>
+            <main className="flex-grow pt-24 px-4 max-w-7xl mx-auto w-full">
+              {children}
+            </main>
 
-          <Footer />
-          <GlobalModal />
-          <AiChatWidget />
+            <Footer />
+          </ClientProviders>
         </FileProvider>
       </body>
     </html>

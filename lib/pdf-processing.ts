@@ -1,75 +1,117 @@
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument, rgb } from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
+import fs from 'fs';
+import path from 'path';
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
 
-export async function invertPDF(file: File, options: { grayscale?: boolean } = {}): Promise<Uint8Array> {
-    const pdfjsLib = await import("pdfjs-dist");
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
+// Fix for Next.js / Server environment
+if (typeof window === 'undefined') {
+    // Setup worker for server-side if needed (though usually we use legacy build)
+}
 
-    const arrayBuffer = await file.arrayBuffer();
-    const loadingTask = pdfjsLib.getDocument(arrayBuffer);
+// We need to configure the worker source
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+export interface TextItem {
+    str: string;
+    x: number;
+    y: number; // PDF coordinates start from bottom-left
+    width: number;
+    height: number;
+    fontName: string;
+}
+
+export async function extractTextFromPDF(arrayBuffer: ArrayBuffer): Promise<TextItem[][]> {
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
     const pdf = await loadingTask.promise;
-    const numPages = pdf.numPages;
+    const pagesText: TextItem[][] = [];
 
-    const newPdfDoc = await PDFDocument.create();
-
-    for (let i = 1; i <= numPages; i++) {
+    for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
-        const viewport = page.getViewport({ scale: 2.0 }); // High quality render
+        const content = await page.getTextContent();
+        const items: TextItem[] = [];
 
-        // Create canvas
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        if (!context) throw new Error("Canvas context not available");
+        for (const item of content.items) {
+            if ('str' in item) { // Check if it's a TextItem
+                // Transform matrix [scaleX, skewY, skewX, scaleY, x, y]
+                const tx = item.transform;
 
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        // Render PDF page to canvas
-        const renderContext = {
-            canvasContext: context,
-            viewport: viewport,
-        };
-        await page.render(renderContext as any).promise;
-
-        // Process pixels
-        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-
-        for (let j = 0; j < data.length; j += 4) {
-            const r = data[j];
-            const g = data[j + 1];
-            const b = data[j + 2];
-
-            // Grayscale?
-            if (options.grayscale) {
-                const avg = (r + g + b) / 3;
-                data[j] = 255 - avg;
-                data[j + 1] = 255 - avg;
-                data[j + 2] = 255 - avg;
-            } else {
-                // Simple Invert
-                data[j] = 255 - r;
-                data[j + 1] = 255 - g;
-                data[j + 2] = 255 - b;
+                items.push({
+                    str: item.str,
+                    x: tx[4],
+                    y: tx[5],
+                    width: item.width,
+                    height: item.height,
+                    fontName: item.fontName
+                });
             }
-            // Alpha (data[j+3]) stays same
         }
+        pagesText.push(items);
+    }
+    return pagesText;
+}
 
-        context.putImageData(imageData, 0, 0);
+export async function reconstructPDF(
+    originalPdfBytes: ArrayBuffer,
+    translatedPages: { items: TextItem[], translated: string[] }[]
+): Promise<Uint8Array> {
+    const pdfDoc = await PDFDocument.load(originalPdfBytes);
 
-        // Convert to Image for pdf-lib
-        const imgDataUrl = canvas.toDataURL("image/jpeg", 0.85); // JPEG for compression
-        const imgBytes = await fetch(imgDataUrl).then((res) => res.arrayBuffer());
+    // Register fontkit
+    pdfDoc.registerFontkit(fontkit);
 
-        // Embed in new PDF
-        const jpgImage = await newPdfDoc.embedJpg(imgBytes);
-        const newPage = newPdfDoc.addPage([viewport.width / 2, viewport.height / 2]); // Scale back down
-        newPage.drawImage(jpgImage, {
-            x: 0,
-            y: 0,
-            width: viewport.width / 2,
-            height: viewport.height / 2,
-        });
+    // Load Hindi Font (Ensure this file exists in your project public/ or localized path)
+    // We will assume it's read from the filesystem for this server-side operation
+    const fontPath = path.join(process.cwd(), 'public', 'NotoSansDevanagari-Regular.ttf');
+    let customFont;
+
+    try {
+        const fontBytes = fs.readFileSync(fontPath);
+        customFont = await pdfDoc.embedFont(fontBytes);
+    } catch (e) {
+        console.error("Could not load Hindi font, falling back to standard.");
+        // Fallback (will not render Hindi correctly)
     }
 
-    return await newPdfDoc.save();
+    const pages = pdfDoc.getPages();
+
+    for (let i = 0; i < pages.length; i++) {
+        const page = pages[i];
+        const { items, translated } = translatedPages[i];
+
+        // Safety check
+        if (!items || !translated) continue;
+
+        for (let j = 0; j < items.length; j++) {
+            const item = items[j];
+            const newText = translated[j];
+
+            if (!newText || newText.trim() === '') continue;
+            // Skip strict number replacements if we want to preserve formatting
+            if (/^\d+$/.test(newText.trim())) continue;
+
+            // 1. "Erase" original text
+            // White rectangle with small padding
+            page.drawRectangle({
+                x: item.x,
+                y: item.y, // Adjust if needed
+                width: item.width,
+                height: Math.abs(item.height || 12),
+                color: rgb(1, 1, 1),
+            });
+
+            // 2. Draw new text
+            if (customFont) {
+                page.drawText(newText, {
+                    x: item.x,
+                    y: item.y,
+                    size: Math.abs(item.height || 12),
+                    font: customFont,
+                    color: rgb(0, 0, 0),
+                });
+            }
+        }
+    }
+
+    return await pdfDoc.save();
 }
