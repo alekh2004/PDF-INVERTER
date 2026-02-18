@@ -5,7 +5,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { GlassButton } from "@/components/ui/GlassButton";
-import { FileStack, Scissors, ArrowRightLeft, FileImage, Moon, Sparkles, BoxSelect, ShieldCheck, Layers, Eye, PenTool, Minimize, Hash } from "lucide-react";
+import { FileStack, Scissors, ArrowRightLeft, FileImage, Moon, Sparkles, BoxSelect, ShieldCheck, Layers, Eye, PenTool, Minimize, Hash, FileText } from "lucide-react";
 import Link from "next/link";
 
 const tools = [
@@ -64,6 +64,13 @@ const tools = [
     icon: <PenTool className="w-8 h-8 text-cyan-400" />,
     href: "/sign",
     color: "from-cyan-500/10 to-cyan-500/5",
+  },
+  {
+    title: "PDF Translator",
+    description: "Translate PDFs to Hindi with AI layout preservation.",
+    icon: <FileText className="w-8 h-8 text-orange-400" />,
+    href: "/translate",
+    color: "from-orange-500/10 to-orange-500/5",
   },
 ];
 

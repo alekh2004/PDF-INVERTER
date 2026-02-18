@@ -17,6 +17,7 @@ export function Navbar() {
         { name: "Optimize", href: "/optimize" },
         { name: "Organize", href: "/organize" },
         { name: "Page No.", href: "/page-numbers" },
+        { name: "Translate", href: "/translate" },
     ];
 
     return (
